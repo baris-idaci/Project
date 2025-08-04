@@ -1,0 +1,16 @@
+---
+- name: "cf_nokia_olt_upgrade.yml: upgrade nokia olt"
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: "cf_nokia_olt_upgrade.yml: set run stages for the role, based on survey choices"
+      ansible.builtin.set_fact:
+        cf_nokia_olt_upgrade__passive_fw_stage:
+          "{{ survey_passive_fw_stage == 'Yes' | default(false) }}"
+        cf_nokia_olt_upgrade__active_fw_stage:
+          "{{ survey_active_fw_stage == 'Yes' | default(false) }}"
+        cf_nokia_olt_upgrade__olt_sw_choice:
+          "{{ survey_olt_sw_choice }}"
+    - name: "cf_nokia_olt_upgrade.yml: run upgrade role"
+      ansible.builtin.include_role:
+        name: "cf_nokia_olt_upgrade"
