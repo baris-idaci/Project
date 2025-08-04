@@ -1,0 +1,23 @@
+---
+- name: "card_upgrade.yml: pre-checks | element: {{ target_card }}"
+  ansible.builtin.include_tasks: subtasks/get_pre_checks.yml
+
+- name: "card_upgrade.yml: set target passive firmware version and wait for download to complete | element: {{ target_card }}"
+  ansible.builtin.include_tasks: subtasks/fw_download_olt_passive.yml
+  when:
+    - cf_nokia_olt_upgrade__passive_fw_stage is true
+
+- name: "card_upgrade.yml: set target active firmware version and wait for card to reboot | element: {{ target_card }}"
+  ansible.builtin.include_tasks: subtasks/fw_download_olt_active.yml
+  when:
+    - cf_nokia_olt_upgrade__active_fw_stage is true
+
+- name: "card_upgrade.yml: wait for the device to become available again | element: {{ target_card }}"
+  ansible.builtin.include_tasks: subtasks/poll_for_reachable.yml
+  when:
+    - cf_nokia_olt_upgrade__active_fw_stage is true
+
+- name: "card_upgrade.yml: post-checks | element: {{ target_card }}"
+  ansible.builtin.include_tasks: subtasks/get_post_checks.yml
+  when:
+    - cf_nokia_olt_upgrade__active_fw_stage is true

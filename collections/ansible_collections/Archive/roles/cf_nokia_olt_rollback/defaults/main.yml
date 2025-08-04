@@ -1,0 +1,6 @@
+---
+# defaults file for cf_nokia_olt_rollback
+cf_nokia_olt_rollback__allow_rollback_process:
+  NT: false
+  LT1: false
+  LT2: false

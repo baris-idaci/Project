@@ -1,0 +1,18 @@
+---
+- name: "rollback_nt.yml: prep NT element for rollback | element: {{ target_card }}"
+  vars:
+    target_element: "{{ olt_card_inventory['hostname'] }}"
+    target_card: "NT"
+  ansible.builtin.include_tasks: subtasks/prep_for_rollback.yml
+
+- name: "rollback_nt.yml: prep IHUB element for rollback | element: {{ target_card }}"
+  vars:
+    target_element: "IHUB.{{ olt_card_inventory['hostname'] }}"
+    target_card: "IHUB"
+  ansible.builtin.include_tasks: subtasks/prep_for_rollback.yml
+
+- name: "rollback_nt.yml: rollback software | element: {{ target_card }}"
+  vars:
+    target_element: "{{ olt_card_inventory['hostname'] }}"
+    target_card: "NT"
+  ansible.builtin.include_tasks: subtasks/rollback_sw.yml

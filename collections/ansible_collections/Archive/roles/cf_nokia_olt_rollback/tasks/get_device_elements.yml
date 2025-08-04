@@ -1,0 +1,37 @@
+---
+- name: "get_device_elements.yml: rpc > get list of elements associated with device"
+  ansible.netcommon.netconf_rpc:
+    rpc: get
+    xmlns: urn:ietf:params:xml:ns:netconf:base:1.0
+    content: "{{ lookup('template', 'templates/get_linecards.jinja2') }}"
+    display: json
+  register: cf_nokia_olt_rollback__rpc_get_linecards
+
+- name: "get_device_elements.yml: assert > verify the rpc output is valid"
+  ansible.builtin.assert:
+    that:
+      - cf_nokia_olt_rollback__rpc_get_linecards['output']['rpc-reply']['data']['anv:device-manager']['adh:device']['device-specific-data']['hardware-state']['component'] is defined
+      - cf_nokia_olt_rollback__rpc_get_linecards['output']['rpc-reply']['data']['anv:device-manager']['adh:device']['device-specific-data']['hardware-state']['component']
+    fail_msg: "RPC didn't return a list of linecards associated with this device"
+    quiet: true
+
+- name: "get_device_elements.yml: assert > verify the cards are in the correct states"
+  ansible.builtin.assert:
+    that:
+      - item["state"]["admin-state"] in cf_nokia_olt_rollback__valid_admin_state
+      - item["state"]["oper-state"] in cf_nokia_olt_rollback__valid_oper_state
+      - item["state"]["standby-state"] in cf_nokia_olt_rollback__valid_standby_state
+    fail_msg: "Linecard: {{ item['parent'] }} is not in the correct state to proceed"
+    quiet: true
+  loop: >-
+    {{ cf_nokia_olt_rollback__rpc_get_linecards['output']['rpc-reply']['data']
+    ['anv:device-manager']['adh:device']['device-specific-data']
+    ['hardware-state']['component']
+    }}
+  loop_control:
+    label: "{{ item['parent'] }}"
+
+- name: "get_device_elements.yml: build a list of inventory facts (olt_card_inventory)"
+  build_nokia_olt_facts:
+    device: "{{ inventory_hostname }}"
+    rpc_reply: "{{ cf_nokia_olt_rollback__rpc_get_linecards }}"

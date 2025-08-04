@@ -1,0 +1,11 @@
+galaxy_info:
+  author: Simon McKelvey
+  description: Performs a software upgrade on a Nokia MF-2 OLT
+  company: CityFibre Ltd.
+  license: Do not distribute
+
+  min_ansible_version: "2.17"
+
+  galaxy_tags: []
+
+dependencies: []

@@ -1,0 +1,21 @@
+---
+- name: "get_post_checks.yml: check download revisions to ensure our software is valid, active and committed | element: {{ target_card }}"
+  ansible.netcommon.netconf_rpc:
+    rpc: get
+    xmlns: urn:ietf:params:xml:ns:netconf:base:1.0
+    content: "{{ lookup('template', cf_nokia_olt_upgrade__olt_sw['rpc']['get_sw_download_status']) }}"
+    display: json
+  register: cf_nokia_olt_upgrade__fw_download_olt_active_state
+  failed_when:
+    - >
+      cf_nokia_olt_upgrade__fw_download_olt_active_state['output']['rpc-reply']['data']
+      ['anv:device-manager']['adh:device']['device-specific-data']['hardware-state']
+      ['component']['software']['software']['revisions']['revision'] is not defined
+  until:
+    - cf_nokia_olt_upgrade__fw_download_olt_active_state | json_query(cf_nokia_olt_upgrade__json_filter['sw_is_defined']) is defined
+    - cf_nokia_olt_upgrade__fw_download_olt_active_state | json_query(cf_nokia_olt_upgrade__json_filter['sw_is_active']) == "true"
+    - cf_nokia_olt_upgrade__fw_download_olt_active_state | json_query(cf_nokia_olt_upgrade__json_filter['sw_is_committed']) == "true"
+    - cf_nokia_olt_upgrade__fw_download_olt_active_state | json_query(cf_nokia_olt_upgrade__json_filter['sw_is_valid']) == "true"
+  retries: "{{ cf_nokia_olt_upgrade__check_timers['firmware_download']['retries'] }}"
+  delay: "{{ cf_nokia_olt_upgrade__check_timers['firmware_download']['delay'] }}"
+

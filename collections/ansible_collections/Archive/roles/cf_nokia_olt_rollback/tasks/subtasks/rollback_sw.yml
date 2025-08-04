@@ -1,0 +1,84 @@
+---
+- name: "rollback_sw.yml: set the relevant RPC for the target type | element: {{ target_card }}"
+  ansible.builtin.set_fact:
+    cf_nokia_olt_rollback__rollback_rpc: >-
+      {{ lookup('template', 'templates/set_target_active_sw_lt.jinja2') if target_type == 'lt'
+      else lookup('template', 'templates/set_target_active_sw_nt.jinja2') }}
+
+
+- name: "rollback_sw.yml: set active bank to target software | element: {{ target_card }}"
+  ansible.netcommon.netconf_rpc:
+    rpc: edit-config
+    xmlns: urn:ietf:params:xml:ns:netconf:base:1.0
+    content: "{{ cf_nokia_olt_rollback__rollback_rpc }}"
+    display: json
+  register: cf_nokia_olt_rollback__rollback_sw_state
+  changed_when:
+    - cf_nokia_olt_rollback__rollback_sw_state['output']['rpc-reply']['ok'] is defined
+  failed_when:
+    - cf_nokia_olt_rollback__rollback_sw_state['output']['rpc-reply']['ok'] is not defined
+
+
+- name: "rollback_sw.yml: wait for the element to become unreachable (rebooting) | element: {{ target_card }}"
+  ansible.netcommon.netconf_rpc:
+    rpc: get
+    xmlns: urn:ietf:params:xml:ns:netconf:base:1.0
+    content: "{{ lookup('template', 'templates/get_device_connection_status.jinja2') }}"
+    display: json
+  register: cf_nokia_olt_rollback__poll_for_unreachable
+  until:
+    - >
+      cf_nokia_olt_rollback__poll_for_unreachable['output']['rpc-reply']['data']
+      ['anv:device-manager']['adh:device']['adh:device-state']['adh:reachable']
+      == "false"
+  retries: "{{ cf_nokia_olt_rollback__check_timers['poll_for_unreachable']['retries'] }}"
+  delay: "{{ cf_nokia_olt_rollback__check_timers['poll_for_unreachable']['delay'] }}"
+
+
+- name: "rollback_sw.yml: poll the element for reachable status until it becomes reachable (online) | element: {{ target_card }}"
+  ansible.netcommon.netconf_rpc:
+    rpc: get
+    xmlns: urn:ietf:params:xml:ns:netconf:base:1.0
+    content: "{{ lookup('template', 'templates/get_device_connection_status.jinja2') }}"
+    display: json
+  register: cf_nokia_olt_rollback__poll_for_reachable
+  until:
+    - >
+      cf_nokia_olt_rollback__poll_for_reachable['output']['rpc-reply']['data']
+      ['anv:device-manager']['adh:device']['adh:device-state']['adh:reachable']
+      == "true"
+  retries: "{{ cf_nokia_olt_rollback__check_timers['reboot']['retries'] }}"
+  delay: "{{ cf_nokia_olt_rollback__check_timers['reboot']['delay'] }}"
+
+
+- name: "rollback_sw.yml: assert the element is aligned | element: {{ target_card }}"
+  ansible.builtin.assert:
+    that:
+      - > 
+        cf_nokia_olt_rollback__poll_for_reachable['output']['rpc-reply']['data']['anv:device-manager']
+        ['adh:device']['adh:device-state']['adh:aligned'] == "true"
+    fail_msg: >-
+      "The element {{ target_element }} is not aligned after rollback. Please manually check the device
+      as this indicates the rollback has failed."
+
+
+- name: "rollback_sw.yml: assert the element is configured correctly | element: {{ target_card }}"
+  ansible.builtin.assert:
+    that:
+      - > 
+        cf_nokia_olt_rollback__poll_for_reachable['output']['rpc-reply']['data']['anv:device-manager']
+        ['adh:device']['adh:device-state']['adh:configuration-error'] == "false"
+    fail_msg: >-
+      "The element {{ target_element }} is showing a configuration error. Please manually check the device
+      as this indicates the rollback has failed."
+
+
+- name: "rollback_sw.yml: assert the element has no plug-mismatch | element: {{ target_card }}"
+  ansible.builtin.assert:
+    that:
+      - > 
+        cf_nokia_olt_rollback__poll_for_reachable['output']['rpc-reply']['data']['anv:device-manager']
+        ['adh:device']['adh:device-state']['adh:plug-mismatch'] == "false"
+    fail_msg: >-
+      "The element {{ target_element }} is showing a plug-mismatch error. Please manually check the device
+      as this indicates the rollback has failed."
