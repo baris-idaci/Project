@@ -1,10 +1,55 @@
 ---
-# defaults file for cf_nokia_olt_upgrade
-cf_nokia_olt_upgrade__debug: false
-cf_nokia_olt_upgrade__olt_sw: null
-cf_nokia_olt_upgrade__passive_fw_stage: false
-cf_nokia_olt_upgrade__active_fw_stage: false
-cf_nokia_olt_upgrade__skip_upgrade_process:
-  NT: false
-  LT1: false
-  LT2: false
+# tasks file for cf_nokia_olt_upgrade
+- name: "main.yml: validate inputs"
+  ansible.builtin.include_tasks: validate_inputs.yml
+
+- name: "main.yml: get OLT elements and build job inventory"
+  ansible.builtin.include_tasks: get_device_elements.yml
+
+- name: "main.yml: check current software status: NT card"
+  vars:
+    target_element: "{{ olt_card_inventory['hostname'] }}"
+    target_card: "NT"
+    target_type: "nt"
+  ansible.builtin.include_tasks: check_software_status.yml
+
+- name: "main.yml: check current software status: LT1 card"
+  vars:
+    target_element: "{{ olt_card_inventory['lt'][0]['card'] }}"
+    target_card: "LT1"
+    target_type: "lt"
+  ansible.builtin.include_tasks: check_software_status.yml
+
+- name: "main.yml: check current software status: LT2 card"
+  vars:
+    target_element: "{{ olt_card_inventory['lt'][1]['card'] }}"
+    target_card: "LT2"
+    target_type: "lt"
+  ansible.builtin.include_tasks: check_software_status.yml
+
+- name: "main.yml: NT card upgrade process"
+  when:
+    - cf_nokia_olt_upgrade__skip_upgrade_process[target_card] is false
+  vars:
+    target_element: "{{ olt_card_inventory['hostname'] }}"
+    target_card: "NT"
+    target_type: "nt"
+  ansible.builtin.include_tasks: card_upgrade.yml
+
+- name: "main.yml: LT1 card upgrade process"
+  when:
+    - cf_nokia_olt_upgrade__skip_upgrade_process[target_card] is false
+  vars:
+    target_element: "{{ olt_card_inventory['lt'][0]['card'] }}"
+    target_card: "LT1"
+    target_type: "lt"
+  ansible.builtin.include_tasks: card_upgrade.yml
+
+- name: "main.yml: LT2 card upgrade process"
+  when:
+    - cf_nokia_olt_upgrade__skip_upgrade_process[target_card] is false
+  vars:
+    target_element: "{{ olt_card_inventory['lt'][1]['card'] }}"
+    target_card: "LT2"
+    target_type: "lt"
+  ansible.builtin.include_tasks: card_upgrade.yml
