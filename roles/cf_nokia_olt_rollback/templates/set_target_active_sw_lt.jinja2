@@ -1,0 +1,27 @@
+{#- Type: edit-config, Valid Target: LT Cards -#}
+{#- Function: Sets the target active software flag and removes passive software flag which will reboot the card -#}
+{#- Prequisites: Device has had the passive software staged to the device -#}
+{#- Additional info: Device has had the passive software staged to the device -#}
+<target>
+    <running/>
+</target>
+<default-operation>merge</default-operation>
+<test-option>set</test-option>
+<error-option>rollback-on-error</error-option>
+<config>
+    <anv:device-manager xmlns:anv="http://www.nokia.com/management-solutions/anv">
+    <adh:device xmlns:adh="http://www.nokia.com/management-solutions/anv-device-holders">
+        <adh:device-id>{{ target_element }}</adh:device-id>
+        <swmgmt:software xmlns:swmgmt="http://www.nokia.com/management-solutions/anv-software"
+                        xmlns:nc="urn:ietf:params:xml:ns:netconf:base:1.0"
+                        nc:operation="merge">
+            <swmgmt:target-active-software>
+                <swmgmt:file-server>default-http</swmgmt:file-server>
+                <swmgmt:file-name>{{ cf_nokia_olt_rollback__sw_name }}</swmgmt:file-name>
+                <swmgmt:sub-directory>{{ cf_nokia_olt_rollback__sw_directory }}</swmgmt:sub-directory>
+            </swmgmt:target-active-software>
+            <swmgmt:target-passive-software nc:operation="replace"/>
+        </swmgmt:software>
+    </adh:device>
+    </anv:device-manager>
+</config>

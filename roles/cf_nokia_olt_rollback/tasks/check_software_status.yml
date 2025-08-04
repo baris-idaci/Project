@@ -1,0 +1,50 @@
+---
+- name: "check_software_status.yml: get software layout | element: {{ target_card }}"
+  ansible.netcommon.netconf_rpc:
+    rpc: get
+    xmlns: urn:ietf:params:xml:ns:netconf:base:1.0
+    content: "{{ lookup('template', 'templates/get_sw_current_layout.jinja2') }}"
+    display: json
+  register: cf_nokia_olt_rollback__current_software_layout
+
+
+- name: "check_software_status.yml: extract the active/passive sw running on the element | element: {{ target_card }}"
+  ansible.builtin.set_fact:
+    cf_nokia_olt_rollback__active_sw: >-
+      {{ cf_nokia_olt_rollback__current_software_layout['output']['rpc-reply']['data']
+      ['anv:device-manager']['adh:device']['swmgmt:software']['swmgmt:active-software'] }}
+    cf_nokia_olt_rollback__passive_sw: >-
+      {{ cf_nokia_olt_rollback__current_software_layout['output']['rpc-reply']['data']
+      ['anv:device-manager']['adh:device']['swmgmt:software']['swmgmt:passive-software'] }}
+
+
+- name: "check_software_status.yml: check element on a valid version for rollback before proceeding"
+  when: >
+    (cf_nokia_olt_rollback__active_sw | string) == (cf_nokia_olt_rollback__valid_rollback_from | string) and
+    (cf_nokia_olt_rollback__passive_sw | string) == (cf_nokia_olt_rollback__valid_rollback_to | string)
+  block:
+    - name: "check_software_status.yml: get the software location for the passive software on AVP | element: {{ target_card }}"
+      ansible.netcommon.netconf_rpc:
+        rpc: get
+        xmlns: urn:ietf:params:xml:ns:netconf:base:1.0
+        content: "{{ lookup('template', 'templates/get_rollback_sw_location.jinja2') }}"
+        display: json
+      register: cf_nokia_olt_rollback__rollback_sw_location
+
+
+    - name: "check_software_status.yml: extract the active/passive sw running on the element | element: {{ target_card }}"
+      ansible.builtin.set_fact:
+        cf_nokia_olt_rollback__sw_directory: >-
+          {{ cf_nokia_olt_rollback__rollback_sw_location['output']['rpc-reply']['data']
+          ['anv:device-manager']['swmgmt:software-management']['swmgmt:device-software-files-on-server']['swmgmt:available-file']
+          ['swmgmt:sub-directory'] }}
+        cf_nokia_olt_rollback__sw_name: >-
+          {{ cf_nokia_olt_rollback__rollback_sw_location['output']['rpc-reply']['data']
+          ['anv:device-manager']['swmgmt:software-management']['swmgmt:device-software-files-on-server']
+          ['swmgmt:available-file']['swmgmt:file-name'] }}
+
+
+    - name: "get_prechecks.yml: set flag to trigger rollback process later in job | element: {{ target_card }}"
+      ansible.builtin.set_fact:
+        cf_nokia_olt_rollback__allow_rollback_process:
+          "{{ cf_nokia_olt_rollback__allow_rollback_process | default({}) | combine({target_card: true}) }}"

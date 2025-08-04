@@ -1,0 +1,32 @@
+<target>
+    <running/>
+</target>
+<default-operation>merge</default-operation>
+<config>
+    <config xmlns="http://www.calix.com/ns/exa/base">
+        <profile>
+            <ont-profile xmlns="http://www.calix.com/ns/exa/gpon-interface-base">
+            <name>NOKIA_XS-010X-Q</name>
+            <vendor-id>ALCL</vendor-id>
+            <eth-oam-support>g988</eth-oam-support>
+            <interface>
+                <ont-ethernet>
+                <port>x1</port>
+                <alarm-suppression>ENABLED</alarm-suppression>
+                </ont-ethernet>
+            </interface>
+            </ont-profile>
+            <ont-profile xmlns="http://www.calix.com/ns/exa/gpon-interface-base">
+            <name>NOKIA_XS-010X-R</name>
+            <vendor-id>ALCL</vendor-id>
+            <eth-oam-support>g988</eth-oam-support>
+            <interface>
+                <ont-ethernet>
+                <port>x1</port>
+                <alarm-suppression>ENABLED</alarm-suppression>
+                </ont-ethernet>
+            </interface>
+            </ont-profile>
+        </profile>
+    </config>
+</config>

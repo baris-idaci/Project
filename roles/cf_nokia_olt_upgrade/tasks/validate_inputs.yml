@@ -1,0 +1,21 @@
+---
+- name: "validate_inputs.yml: ensure device is a Nokia MF-2 OLT sourced from autotools inventory"
+  ansible.builtin.assert:
+    that:
+      - autotools_model == "MF-2"
+    fail_msg:
+      "This role is only intended for Nokia MF-2 OLTs sourced from autotools inventory"
+    success_msg:
+      "Device is a Nokia MF-2 OLT sourced from autotools inventory"
+
+- name: "validate_inputs.yml: set firmware versions based on choice"
+  ansible.builtin.set_fact:
+    cf_nokia_olt_upgrade__olt_sw:
+      "{{ cf_nokia_olt_upgrade__olt_images[cf_nokia_olt_upgrade__olt_sw_choice] | default(None) }}"
+
+- name: "validate_inputs.yml: validate that we have picked a valid OLT software version"
+  ansible.builtin.assert:
+    that:
+      - cf_nokia_olt_upgrade__olt_sw is not none
+    success_msg: "Valid OLT software version selected"
+    fail_msg: "No valid OLT software version selected. Check survey options and variable defaults."

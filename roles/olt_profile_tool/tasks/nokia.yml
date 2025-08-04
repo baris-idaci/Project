@@ -1,0 +1,32 @@
+---
+- name: "nokia.yml: load AVP credentials"
+  ansible.builtin.include_vars:
+    file: "vars/avp_credentials_prod.yml"
+
+- name: "nokia.yml: config tasks"
+  vars:
+    ansible_user: "{{ olt_profile_tool__avp_username }}"
+    ansible_password: "{{ olt_profile_tool__avp_password }}"
+  block:
+    - name: "nokia.yml: get line cards for device"
+      ansible.netcommon.netconf_rpc:
+        rpc: get
+        xmlns: urn:ietf:params:xml:ns:netconf:base:1.0
+        content: "{{ lookup('template', 'templates/nokia/rpc_get_linecards.xml.jinja2') }}"
+        display: json
+      register: olt_profile_tool__rpc_get_linecards
+
+    - name: "nokia.yml: set fact for line cards"
+      ansible.builtin.set_fact:
+        olt_profile_tool__nokia_installed_linecards: >-
+          {{ olt_profile_tool__rpc_get_linecards | json_query(olt_profile_tool__json_queries.nokia.rpc_get_linecards) | map('regex_replace', '^Board-', '') | list }}
+
+    - name: "nokia.yml: push change to AVP"
+      ansible.netcommon.netconf_rpc:
+        rpc: edit-config
+        xmlns: urn:ietf:params:xml:ns:netconf:base:1.0
+        content: "{{ lookup('template', 'templates/nokia/config_xgspon_profiles.xml.jinja2') }}"
+        display: json
+      register: olt_profile_tool__rpc_edit_config_avp
+      changed_when: olt_profile_tool__rpc_edit_config_avp["output"]["rpc-reply"]["ok"] is defined
+      failed_when: olt_profile_tool__rpc_edit_config_avp["output"]["rpc-reply"]["ok"] is not defined

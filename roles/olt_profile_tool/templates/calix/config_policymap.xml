@@ -1,0 +1,48 @@
+<target>
+    <running/>
+</target>
+<default-operation>merge</default-operation>
+<config>
+    <config xmlns="http://www.calix.com/ns/exa/base">
+    <profile>
+        <class-map>
+            <ethernet>
+                <name>match-untagged</name>
+                <flow>
+                <flow-index>1</flow-index>
+                <rule>
+                    <index>1</index>
+                    <match>
+                    <untagged>true</untagged>
+                    </match>
+                </rule>
+                </flow>
+            </ethernet>
+        </class-map>
+        <policy-map>
+          <name>AF-L_dual-queue_untagged</name>
+          <class-map-ethernet>
+            <name>match-untagged</name>
+            <egress>
+              <egress-mode>shaper</egress-mode>
+              <scheduling-type>3SP-5SP-EPM</scheduling-type>
+              <bw>
+                <bwp1>3sp-bw</bwp1>
+                <min-parent-cos>cos6</min-parent-cos>
+              </bw>
+              <bw>
+                <bwp1>5sp-bw</bwp1>
+                <max-parent-cos>cos3</max-parent-cos>
+                <weight>35</weight>
+              </bw>
+            </egress>
+            <set-ctag-pcp>2</set-ctag-pcp>
+            <set-stag-pcp>2</set-stag-pcp>
+            <flow>
+              <flow-id>1</flow-id>
+            </flow>
+          </class-map-ethernet>
+        </policy-map>        
+    </profile>
+    </config>
+</config>
