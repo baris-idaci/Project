@@ -1,0 +1,15 @@
+{#- Type: get, Valid Target: NT Cards, LT Cards -#}
+{#- Function: Gets the actual active and actual passive software running on the element, returns the product code e.g L6GQAG22.640 -#}
+{#- Prequisites: None -#}
+{#- Additional info: None -#}
+<filter>
+    <device-manager xmlns="http://www.nokia.com/management-solutions/anv">
+        <device xmlns="http://www.nokia.com/management-solutions/anv-device-holders">
+            <device-id>{{ target_element }}</device-id>
+            <software xmlns="http://www.nokia.com/management-solutions/anv-software">
+            <active-software/>
+            <passive-software/>
+            </software>
+        </device>
+    </device-manager>
+</filter>

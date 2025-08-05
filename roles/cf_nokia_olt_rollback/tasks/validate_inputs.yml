@@ -1,0 +1,9 @@
+---
+- name: "validate_inputs.yml: ensure device is a Nokia MF-2 OLT sourced from autotools inventory"
+  ansible.builtin.assert:
+    that:
+      - autotools_model == "MF-2"
+    fail_msg:
+      "This role is only intended for Nokia MF-2 OLTs sourced from autotools inventory"
+    success_msg:
+      "Device is a Nokia MF-2 OLT sourced from autotools inventory"

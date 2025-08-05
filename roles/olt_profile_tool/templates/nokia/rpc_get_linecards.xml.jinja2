@@ -1,0 +1,14 @@
+<filter>
+    <device-manager xmlns="http://www.nokia.com/management-solutions/anv">
+    <device xmlns="http://www.nokia.com/management-solutions/anv-device-holders">
+        <device-id>{{ inventory_hostname }}</device-id>
+        <device-specific-data>
+        <hardware-state xmlns="urn:ietf:params:xml:ns:yang:ietf-hardware">
+            <component>
+            <model-name>LWLT-C</model-name>
+            </component>
+        </hardware-state>
+        </device-specific-data>
+    </device>
+    </device-manager>
+</filter>

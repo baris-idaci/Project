@@ -1,0 +1,14 @@
+{#- Type: action, Valid Target: LT, NT, IHUB -#}
+{#- Function: Locks the element for migration -#}
+{#- Prequisites: None -#}
+{#- Additional info: None -#}
+<anv:device-manager xmlns:anv="http://www.nokia.com/management-solutions/anv">
+    <adh:device xmlns:adh="http://www.nokia.com/management-solutions/anv-device-holders">
+        <adh:device-id>{{ target_element }}</adh:device-id>
+        <swmgmt:software xmlns:swmgmt="http://www.nokia.com/management-solutions/anv-software">
+        <swmgmt:set-rollback-flag>
+            <swmgmt:use-rollback-datastore>true</swmgmt:use-rollback-datastore>
+        </swmgmt:set-rollback-flag>
+        </swmgmt:software>
+    </adh:device>
+</anv:device-manager>

@@ -1,0 +1,6 @@
+---
+- name: "rollback_lt.yml: prep element for rollback | element: {{ target_card }}"
+  ansible.builtin.include_tasks: subtasks/prep_for_rollback.yml
+
+- name: "rollback_lt.yml: rollback software | element: {{ target_card }}"
+  ansible.builtin.include_tasks: subtasks/rollback_sw.yml

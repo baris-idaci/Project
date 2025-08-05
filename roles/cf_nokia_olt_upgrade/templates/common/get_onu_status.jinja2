@@ -1,0 +1,19 @@
+{#- Type: get, Valid Target: LT Card -#}
+{#- Function: Pulls back the list of associated ONUs with a PON port, the signal strength and the associated ONT (v-ani-ref) -#}
+{#- Prequisites: None -#}
+{#- Additional info: None -#}
+<filter type="subtree">
+    <anv:device-manager xmlns:anv="http://www.nokia.com/management-solutions/anv">
+    <adh:device xmlns:adh="http://www.nokia.com/management-solutions/anv-device-holders">
+        <adh:device-id>{{ target_element }}</adh:device-id>
+        <adh:device-specific-data>
+        <hardware-state xmlns="urn:ietf:params:xml:ns:yang:ietf-hardware">
+            <component>
+            <transceiver-link xmlns="urn:bbf:yang:bbf-hardware-transceivers">
+                </transceiver-link>
+            </component>
+        </hardware-state>
+        </adh:device-specific-data>
+    </adh:device>
+    </anv:device-manager>
+</filter>
