@@ -1,8 +1,0 @@
----
-- name: "cf_nokia_olt_rollback.yml: rollback nokia OLT to the previous software version (passive bank)"
-  hosts: all
-  gather_facts: false
-  tasks:
-    - name: "cf_nokia_olt_rollback.yml: run rollback role"
-      ansible.builtin.include_role:
-        name: "cf_nokia_olt_rollback"
