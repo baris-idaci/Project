@@ -1,7 +1,0 @@
-<filter>
-    <status xmlns="http://www.calix.com/ns/exa/base">
-    <system>
-        <card xmlns="http://www.calix.com/ns/exa/equipment-ua"/>
-    </system>
-    </status>
-</filter>

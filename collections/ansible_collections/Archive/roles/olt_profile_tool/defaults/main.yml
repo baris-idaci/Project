@@ -1,4 +1,0 @@
----
-# defaults file for olt_profile_tool
-olt_profile_tool__calix_gpon_olt: false
-olt_profile_tool__calix_xgspon_olt: false
