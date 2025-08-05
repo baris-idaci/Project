@@ -1,5 +1,0 @@
----
-# tasks file for olt_profile_tool
-- name: "main.yml: olt_profile_tool: {{ autotools_vendor }}"
-  ansible.builtin.include_tasks: "{{ autotools_vendor }}.yml"
-  when: autotools_vendor is defined

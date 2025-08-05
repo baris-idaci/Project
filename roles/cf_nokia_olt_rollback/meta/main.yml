@@ -1,8 +1,0 @@
-galaxy_info:
-  author: Simon McKelvey
-  description: Allows rollback of a Nokia OLT from v24 to v22 (following the correct process)
-  company: CityFibre Ltd
-  license: Do Not Distribute
-  min_ansible_version: "2.12"
-  galaxy_tags: []
-dependencies: []
